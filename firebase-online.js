@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// আপনার সঠিক কনফিগারেশন (সিঙ্গাপুর সার্ভারসহ)
 const firebaseConfig = {
     apiKey: "AIzaSyDkNUNq0bbEAguSW2nCvJ1IqdG7_wBj7U0",
     authDomain: "mojnu-screen-print.firebaseapp.com",
@@ -13,11 +12,10 @@ const firebaseConfig = {
     measurementId: "G-GPP2BCTMCV"
 };
 
-// ডাটাবেজ শুরু করা
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// অনলাইনে ডাটা পাঠানোর ফাংশন (Sync Function)
+// ডাটা অনলাইনে পাঠানোর ফাংশন
 window.syncToCloud = function() {
     const data = {
         bills: JSON.parse(localStorage.getItem("mj_3d_bills")) || [],
@@ -25,33 +23,45 @@ window.syncToCloud = function() {
         customers: JSON.parse(localStorage.getItem("mj_3d_cust")) || {},
         nextId: localStorage.getItem("mj_3d_id") || 1001,
         config: JSON.parse(localStorage.getItem("mj_3d_config")) || {},
-        lastSync: new Date().toLocaleString() // সেভ হওয়ার সময়
+        lastSync: new Date().getTime() // সময়টা নম্বর হিসেবে রাখলে সুবিধা
     };
 
     set(ref(db, 'shop_data/'), data)
-    .then(() => console.log("অভিনন্দন! ডাটা অনলাইনে সেভ হয়েছে।"))
-    .catch((error) => console.error("সেভ করতে সমস্যা হয়েছে:", error));
+    .then(() => console.log("ক্লাউডে সেভ হয়েছে!"))
+    .catch((error) => console.error("সেভ এরর:", error));
 }
 
-// অনলাইন থেকে ডাটা পিসিতে আপডেট করা
+// ডাটাবেজে কোনো পরিবর্তন হলেই এই অংশটি অটোমেটিক চলবে
 onValue(ref(db, 'shop_data/'), (snapshot) => {
     const data = snapshot.val();
     if(data) {
+        // পিসির লোকাল ডাটার সাথে মিলানো হচ্ছে
         localStorage.setItem("mj_3d_bills", JSON.stringify(data.bills));
         localStorage.setItem("mj_3d_stock", JSON.stringify(data.stocks));
         localStorage.setItem("mj_3d_cust", JSON.stringify(data.customers));
         localStorage.setItem("mj_3d_id", data.nextId);
         localStorage.setItem("mj_3d_config", JSON.stringify(data.config));
         
-        // আপনার সাইটের মেইন রেন্ডার ফাংশন কল করা
-        if(typeof render === "function") render();
+        console.log("অনলাইন থেকে নতুন ডাটা পাওয়া গেছে!");
+
+        // এই লাইনটি খুবই গুরুত্বপূর্ণ: পেজ অটো আপডেট করবে
+        if(typeof render === "function") {
+            render(); 
+        } else {
+            // যদি রেন্ডার ফাংশন সরাসরি না পায়, তবে ১ সেকেন্ড পর আবার চেষ্টা করবে
+            setTimeout(() => { if(typeof render === "function") render(); }, 1000);
+        }
     }
+}, (error) => {
+    console.error("ডাটা আনতে সমস্যা:", error);
 });
 
-// ৩. অটোমেটিক সেভ হওয়ার টাইমার (১২০ সেকেন্ড পর পর)
+// পেজ খোলার ৫ সেকেন্ড পর প্রথমবার ডাটা পাঠাবে
+setTimeout(() => {
+    window.syncToCloud();
+}, 5000);
+
+// প্রতি ৬০ সেকেন্ড পর পর অটো ব্যাকআপ
 setInterval(() => {
     window.syncToCloud();
-}, 120000); 
-
-// প্রথমবার পেজ লোড হলে একবার সেভ হবে
-window.syncToCloud();
+}, 60000);
