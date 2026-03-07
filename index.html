@@ -640,29 +640,24 @@ function render() {
     if(sessionStorage.getItem("maj_auth") === "true") initApp();
 
 function autoFillPhone() {
-        let name = document.getElementById("cName").value;
-        let phoneField = document.getElementById("cPhone");
-        
-        // সেভ করা কাস্টমারদের ডাটাবেজ (customers) চেক করা
-        for (let phone in customers) {
-            if (customers[phone] === name) {
-                phoneField.value = phone;
-                break;
-            }
+    let name = document.getElementById("cName").value;
+    for (let phone in customers) {
+        if (customers[phone] === name) {
+            document.getElementById("cPhone").value = phone;
+            break;
         }
     }
+}
 
-    // ২. ডাটাবেজে থাকা কাস্টমারদের নাম দিয়ে সাজেশন লিস্ট তৈরি করার ফাংশন
-    function updateCustomerDatalist() {
-        let list = document.getElementById("customerList");
-        if(!list) return;
-        list.innerHTML = "";
-        for (let phone in customers) {
-            let option = document.createElement("option");
-            option.value = customers[phone]; // কাস্টমারের নাম সাজেশন হিসেবে দেখাবে
-            list.appendChild(option);
-        }
+function updateCustomerDatalist() {
+    let list = document.getElementById("customerList");
+    let options = "";
+    for (let phone in customers) {
+        options += `<option value="${customers[phone]}">${phone}</option>`;
     }
+    list.innerHTML = options;
+}
+
 
     // ৩. পেজ লোড হওয়ার সাথে সাথে লিস্টটি তৈরি করা
     window.addEventListener('DOMContentLoaded', updateCustomerDatalist);
@@ -670,7 +665,6 @@ function autoFillPhone() {
     // --- নতুন কোড শেষ ---
 
 </script>
-
-<script type="module" crossorigin="anonymous" src="./firebase-online.js"></script>
+<script type="module" src="firebase-online.js"></script>
 </body>
 </html>
