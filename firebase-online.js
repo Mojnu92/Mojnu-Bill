@@ -8,8 +8,7 @@ const firebaseConfig = {
     projectId: "mojnu-screen-print",
     storageBucket: "mojnu-screen-print.firebasestorage.app",
     messagingSenderId: "807078340924",
-    appId: "1:807078340924:web:5c5efcbcaf19eb0a47d639",
-    measurementId: "G-GPP2BCTMCV"
+    appId: "1:807078340924:web:5c5efcbcaf19eb0a47d639"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -65,3 +64,4 @@ setTimeout(() => {
 setInterval(() => {
     window.syncToCloud();
 }, 60000);
+
