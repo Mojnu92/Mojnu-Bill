@@ -228,13 +228,16 @@
         document.getElementById("gTotal").innerText = t.toFixed(2);
     }
 
-    function storage() { 
-        localStorage.setItem("mj_3d_bills", JSON.stringify(bills)); 
-        localStorage.setItem("mj_3d_stock", JSON.stringify(stocks)); 
-        localStorage.setItem("mj_3d_cust", JSON.stringify(customers)); 
-        localStorage.setItem("mj_3d_id", nextId); 
-        localStorage.setItem("mj_3d_config", JSON.stringify(config)); 
-    }
+function storage() { 
+    localStorage.setItem("mj_3d_bills", JSON.stringify(bills)); 
+    localStorage.setItem("mj_3d_stock", JSON.stringify(stocks)); 
+    localStorage.setItem("mj_3d_cust", JSON.stringify(customers)); 
+    localStorage.setItem("mj_3d_id", nextId); 
+    localStorage.setItem("mj_3d_config", JSON.stringify(config)); 
+
+    // নতুন যোগ করা লাইন: এটি ডাটা অনলাইনে পাঠিয়ে দিবে
+    if(window.syncToCloud) window.syncToCloud();
+}
 
     function saveBill() {
         let p = document.getElementById("cPhone").value, 
@@ -667,6 +670,7 @@ function autoFillPhone() {
     // --- নতুন কোড শেষ ---
 
 </script>
-</body>
 
+<script type="module" crossorigin="anonymous" src="./firebase-online.js"></script>
+</body>
 </html>
